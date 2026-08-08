@@ -1,14 +1,385 @@
-DOCTYPE html>
+<!DOCTYPE html>
 <html lang="pt-br">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Frase Especial</title>
+    <meta name="theme-color" content="#2c3e50">
+    <title>Familia Finanças - Gerenciamento de Notas e Despesas</title>
+    <link rel="manifest" href="manifest.json">
     <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body>
-    <div class="container">
-        <h1>Oii Família linda</h1>
+    <div class="app-container">
+        <!-- Header -->
+        <header class="header">
+            <div class="header-content">
+                <div class="logo">
+                    <i class="fas fa-home"></i>
+                    <span>Familia Finanças</span>
+                </div>
+                <div class="header-actions">
+                    <button id="themeToggle" class="btn-icon" title="Alternar tema">
+                        <i class="fas fa-moon"></i>
+                    </button>
+                    <button id="syncBtn" class="btn-icon" title="Sincronizar">
+                        <i class="fas fa-sync-alt"></i>
+                    </button>
+                </div>
+            </div>
+        </header>
+
+        <!-- Navigation -->
+        <nav class="nav-tabs">
+            <button class="nav-tab active" data-tab="notes">
+                <i class="fas fa-sticky-note"></i>
+                <span>Notas</span>
+            </button>
+            <button class="nav-tab" data-tab="expenses">
+                <i class="fas fa-money-bill-wave"></i>
+                <span>Despesas</span>
+            </button>
+            <button class="nav-tab" data-tab="incomes">
+                <i class="fas fa-hand-holding-usd"></i>
+                <span>Recebimentos</span>
+            </button>
+            <button class="nav-tab" data-tab="dashboard">
+                <i class="fas fa-chart-pie"></i>
+                <span>Dashboard</span>
+            </button>
+        </nav>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Notes Tab -->
+            <section id="notes" class="tab-content active">
+                <div class="section-header">
+                    <h2><i class="fas fa-sticky-note"></i> Notas</h2>
+                    <button id="addNoteBtn" class="btn btn-primary">
+                        <i class="fas fa-plus"></i> Nova Nota
+                    </button>
+                </div>
+                
+                <div class="search-bar">
+                    <i class="fas fa-search"></i>
+                    <input type="text" id="noteSearch" placeholder="Pesquisar notas...">
+                </div>
+                
+                <div class="notes-grid" id="notesGrid">
+                    <!-- Notes will be dynamically added here -->
+                </div>
+            </section>
+
+            <!-- Expenses Tab -->
+            <section id="expenses" class="tab-content">
+                <div class="section-header">
+                    <h2><i class="fas fa-money-bill-wave"></i> Despesas</h2>
+                    <button id="addExpenseBtn" class="btn btn-primary">
+                        <i class="fas fa-plus"></i> Nova Despesa
+                    </button>
+                </div>
+                
+                <div class="filters">
+                    <select id="expenseCategoryFilter">
+                        <option value="all">Todas as categorias</option>
+                        <option value="Alimentação">Alimentação</option>
+                        <option value="Transporte">Transporte</option>
+                        <option value="Moradia">Moradia</option>
+                        <option value="Saúde">Saúde</option>
+                        <option value="Lazer">Lazer</option>
+                        <option value="Educação">Educação</option>
+                        <option value="Outros">Outros</option>
+                    </select>
+                    <select id="expenseMonthFilter">
+                        <option value="all">Todos os meses</option>
+                    </select>
+                </div>
+                
+                <div class="transactions-list" id="expensesList">
+                    <!-- Expenses will be dynamically added here -->
+                </div>
+            </section>
+
+            <!-- Incomes Tab -->
+            <section id="incomes" class="tab-content">
+                <div class="section-header">
+                    <h2><i class="fas fa-hand-holding-usd"></i> Recebimentos</h2>
+                    <button id="addIncomeBtn" class="btn btn-primary">
+                        <i class="fas fa-plus"></i> Novo Recebimento
+                    </button>
+                </div>
+                
+                <div class="filters">
+                    <select id="incomeCategoryFilter">
+                        <option value="all">Todas as categorias</option>
+                        <option value="Salário">Salário</option>
+                        <option value="Freelance">Freelance</option>
+                        <option value="Investimentos">Investimentos</option>
+                        <option value="Presentes">Presentes</option>
+                        <option value="Outros">Outros</option>
+                    </select>
+                    <select id="incomeMonthFilter">
+                        <option value="all">Todos os meses</option>
+                    </select>
+                </div>
+                
+                <div class="transactions-list" id="incomesList">
+                    <!-- Incomes will be dynamically added here -->
+                </div>
+            </section>
+
+            <!-- Dashboard Tab -->
+            <section id="dashboard" class="tab-content">
+                <div class="section-header">
+                    <h2><i class="fas fa-chart-pie"></i> Dashboard</h2>
+                    <div class="date-range-selector">
+                        <select id="dashboardMonth">
+                            <option value="current">Mês Atual</option>
+                            <option value="last">Mês Passado</option>
+                            <option value="all">Todo o Período</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <div class="dashboard-cards">
+                    <div class="card balance-card">
+                        <div class="card-header">
+                            <i class="fas fa-wallet"></i>
+                            <span>Saldo Atual</span>
+                        </div>
+                        <div class="card-value" id="currentBalance">R$ 0,00</div>
+                        <div class="card-footer">
+                            <span class="positive" id="totalIncome">+ R$ 0,00</span>
+                            <span class="negative" id="totalExpense">- R$ 0,00</span>
+                        </div>
+                    </div>
+                    
+                    <div class="card chart-card">
+                        <div class="card-header">
+                            <i class="fas fa-chart-bar"></i>
+                            <span>Despesas por Categoria</span>
+                        </div>
+                        <canvas id="expensesChart"></canvas>
+                    </div>
+                    
+                    <div class="card chart-card">
+                        <div class="card-header">
+                            <i class="fas fa-chart-pie"></i>
+                            <span>Recebimentos por Categoria</span>
+                        </div>
+                        <canvas id="incomesChart"></canvas>
+                    </div>
+                </div>
+                
+                <div class="recent-activity">
+                    <h3><i class="fas fa-clock"></i> Atividade Recente</h3>
+                    <div id="recentActivity" class="activity-list">
+                        <!-- Recent activity will be dynamically added here -->
+                    </div>
+                </div>
+            </section>
+        </main>
+
+        <!-- Modals -->
+        <!-- Add/Edit Note Modal -->
+        <div id="noteModal" class="modal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3 id="noteModalTitle">Nova Nota</h3>
+                    <button class="btn-close" id="closeNoteModal">&times;</button>
+                </div>
+                <form id="noteForm">
+                    <div class="form-group">
+                        <label for="noteTitle">Título</label>
+                        <input type="text" id="noteTitle" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="noteContent">Conteúdo</label>
+                        <textarea id="noteContent" rows="5" required></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label for="noteColor">Cor</label>
+                        <div class="color-picker" id="noteColor">
+                            <span class="color-option" data-color="#ff6b6b" style="background: #ff6b6b;"></span>
+                            <span class="color-option" data-color="#4ecdc4" style="background: #4ecdc4;"></span>
+                            <span class="color-option" data-color="#45b7d1" style="background: #45b7d1;"></span>
+                            <span class="color-option" data-color="#f9ca24" style="background: #f9ca24;"></span>
+                            <span class="color-option" data-color="#6c5ce7" style="background: #6c5ce7;"></span>
+                            <span class="color-option active" data-color="#a29bfe" style="background: #a29bfe;"></span>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="notePriority">Prioridade</label>
+                        <select id="notePriority">
+                            <option value="low">Baixa</option>
+                            <option value="medium" selected>Média</option>
+                            <option value="high">Alta</option>
+                        </select>
+                    </div>
+                    <input type="hidden" id="noteId">
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" id="cancelNoteBtn">Cancelar</button>
+                        <button type="submit" class="btn btn-primary">Salvar</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Add/Edit Expense Modal -->
+        <div id="expenseModal" class="modal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3 id="expenseModalTitle">Nova Despesa</h3>
+                    <button class="btn-close" id="closeExpenseModal">&times;</button>
+                </div>
+                <form id="expenseForm">
+                    <div class="form-group">
+                        <label for="expenseDescription">Descrição</label>
+                        <input type="text" id="expenseDescription" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="expenseAmount">Valor (R$)</label>
+                        <input type="number" id="expenseAmount" step="0.01" min="0" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="expenseCategory">Categoria</label>
+                        <select id="expenseCategory" required>
+                            <option value="Alimentação">Alimentação</option>
+                            <option value="Transporte">Transporte</option>
+                            <option value="Moradia">Moradia</option>
+                            <option value="Saúde">Saúde</option>
+                            <option value="Lazer">Lazer</option>
+                            <option value="Educação">Educação</option>
+                            <option value="Outros">Outros</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="expenseDate">Data</label>
+                        <input type="date" id="expenseDate" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="expensePaymentMethod">Forma de Pagamento</label>
+                        <select id="expensePaymentMethod">
+                            <option value="Dinheiro">Dinheiro</option>
+                            <option value="Cartão de Crédito">Cartão de Crédito</option>
+                            <option value="Cartão de Débito">Cartão de Débito</option>
+                            <option value="Pix">Pix</option>
+                            <option value="Boleto">Boleto</option>
+                            <option value="Transferência">Transferência</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="expenseNotes">Observações</label>
+                        <textarea id="expenseNotes" rows="3"></textarea>
+                    </div>
+                    <input type="hidden" id="expenseId">
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" id="cancelExpenseBtn">Cancelar</button>
+                        <button type="submit" class="btn btn-primary">Salvar</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Add/Edit Income Modal -->
+        <div id="incomeModal" class="modal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3 id="incomeModalTitle">Novo Recebimento</h3>
+                    <button class="btn-close" id="closeIncomeModal">&times;</button>
+                </div>
+                <form id="incomeForm">
+                    <div class="form-group">
+                        <label for="incomeDescription">Descrição</label>
+                        <input type="text" id="incomeDescription" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="incomeAmount">Valor (R$)</label>
+                        <input type="number" id="incomeAmount" step="0.01" min="0" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="incomeCategory">Categoria</label>
+                        <select id="incomeCategory" required>
+                            <option value="Salário">Salário</option>
+                            <option value="Freelance">Freelance</option>
+                            <option value="Investimentos">Investimentos</option>
+                            <option value="Presentes">Presentes</option>
+                            <option value="Outros">Outros</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="incomeDate">Data</label>
+                        <input type="date" id="incomeDate" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="incomePaymentMethod">Forma de Recebimento</label>
+                        <select id="incomePaymentMethod">
+                            <option value="Dinheiro">Dinheiro</option>
+                            <option value="Cartão de Crédito">Cartão de Crédito</option>
+                            <option value="Cartão de Débito">Cartão de Débito</option>
+                            <option value="Pix">Pix</option>
+                            <option value="Transferência">Transferência</option>
+                            <option value="Cheque">Cheque</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="incomeNotes">Observações</label>
+                        <textarea id="incomeNotes" rows="3"></textarea>
+                    </div>
+                    <input type="hidden" id="incomeId">
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" id="cancelIncomeBtn">Cancelar</button>
+                        <button type="submit" class="btn btn-primary">Salvar</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Confirmation Modal -->
+        <div id="confirmModal" class="modal">
+            <div class="modal-content modal-small">
+                <div class="modal-header">
+                    <h3>Confirmar</h3>
+                    <button class="btn-close" id="closeConfirmModal">&times;</button>
+                </div>
+                <div class="modal-body">
+                    <p id="confirmMessage">Tem certeza que deseja excluir este item?</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" id="cancelConfirmBtn">Cancelar</button>
+                    <button type="button" class="btn btn-danger" id="confirmBtn">Confirmar</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Toast Notification -->
+        <div id="toast" class="toast">
+            <i class="fas fa-check-circle"></i>
+            <span id="toastMessage">Item salvo com sucesso!</span>
+        </div>
+
+        <!-- Footer -->
+        <footer class="footer">
+            <p>Familia Finanças &copy; <span id="currentYear"></span> | Dados salvos localmente</p>
+        </footer>
     </div>
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="app.js"></script>
+    <script>
+        // Register service worker
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('service-worker.js')
+                    .then(registration => {
+                        console.log('ServiceWorker registration successful');
+                    })
+                    .catch(err => {
+                        console.log('ServiceWorker registration failed: ', err);
+                    });
+            });
+        }
+    </script>
 </body>
-</html
+</html>
